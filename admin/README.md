@@ -1,10 +1,13 @@
-# Strapi built-in admin panel
-
 ## Description
 
-TODO
+CRUD Operations with Strapi and WEBix Framework. I have created four end for our rest api
 
-## Contribute
+1.) /Books  ---for fetching data from the server
+2.) /Books  ---for posting to the server
+3.) /Books/:id  ---for updating record
+4) /Books/:id ---for deleting record
+
+In Frontend, most of the time i have use JavaScript fetch API to make the request and reponse on my created endpoint.  
 
 ### Setup
 
