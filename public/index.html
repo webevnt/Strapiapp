@@ -1,0 +1,224 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+    <link rel="stylesheet" href="//cdn.webix.com/edge/webix.css" type="text/css"> 
+    <script src="//cdn.webix.com/edge/webix.js" type="text/javascript"></script>  
+    </head>
+    <body>
+        <div id='grid-container'></div>
+<script>
+     
+//fetching data from server and mapping them into datatable 
+fetch('/Books')
+    .then(response => response.json())
+    .then(data =>{
+   
+
+
+   var grida = {
+  view:"datatable",
+  columns:[
+    { id:"bookName", header:"Book Name", width:200 },
+    { id:"bookCover", header:"Book Cover", width:200 },
+    { id:"price", header:"Price", width:100,format:webix.i18n.priceFormat},
+    { id:"publishedDate", header:"Published Date", width:200 },
+    { id:"Delete", header:"Delete",
+    template:function(obj){ 
+       return "<div class='webix_el_button'><span class='abc webix_icon wxi-trash'></span></div>";
+     }
+   },
+   { id:"Update", header:"Update",
+    template:function(obj){ 
+       return "<div class='webix_el_button'><span class='abcd webix_icon wxi-pencil'></span></div>";
+     }
+   }, 
+  ],
+
+  onClick:{
+    abc:function(ev, id, html){
+      //webix.confirm("Are you sure? ");
+
+webix.modalbox({
+    buttons:["Yes", "No"],
+    text:"Are you sure? you wanna Delete the record.",
+    width:400
+}).then(function(result){
+        if(result=="0"){
+        fetch(`/Books/${id}`, {
+          method: 'DELETE'
+        });
+        
+        window.location = "/";
+        }
+    });      
+    },
+    abcd:function(ev, id, html){
+      //webix.confirm("Are you sure? ");
+
+
+
+      
+   
+
+var myWin = webix.ui({
+  view: 'window',
+  width:450,
+  head: 'Edit the record!',
+  modal: true,
+  position: 'center',
+  body: {
+    view: 'form',id:"form",
+    elements: [
+    {
+        view:"text", name:"bookName",
+        label:"Book Name", labelPosition:"top",
+        placeholder:"Book name",
+        invalidMessage:"A book name is required",
+        tooltip:"Book name is #value#"
+      },
+      {
+        view:"text", name:"bookCover",
+        label:"Book Cover", labelPosition:"top",
+        invalidMessage:"A book cover is required",
+        placeholder:"Book Cover",
+        tooltip:"Book Cover is #value#"
+      },
+      { view:"text", name:"price", 
+      label:"Price", labelPosition:"top",placeholder:"Price",
+      validate:function(val){
+        return !isNaN(val*1);
+      }, attributes:{ type:"number" }},
+      { view:"text", name:"author",width:0,height:0,attributes:{ type:"hidden" }},
+      { view:"datepicker", timepicker:true, labelPosition:"top",
+      label:"Published Date", name:"publishedDate", stringResult:true,
+      placeholder:"Published Date",
+     format:"%Y-%m-%d  %H:%i:%s"},
+      { view: 'button', value: 'Submit',type:'form',
+        click:function(){
+          const form = this.getFormView();
+           //first i will get data for single user before clicking submit button
+      
+          //console.log(form.validate());
+          console.log(form.getValues());
+          if (form.validate()){
+
+            //updating data from the server after completing 
+            //sucessful validation
+
+            fetch(`/Books/${id}`, {
+              method: 'PUT',
+              body: JSON.stringify(form.getValues()),
+           headers: {
+            "Content-type": "application/json; charset=UTF-8"
+          }
+        })
+        .then(response => response.json())
+        .then(json => console.log(json));
+         
+         window.location = "/";
+
+          }
+        }
+      }
+    ],
+    rules:{
+      "bookName":webix.rules.isNotEmpty,
+      "bookCover":webix.rules.isNotEmpty
+    }
+  },
+  move: true
+});
+
+
+    myWin.show();
+  //first of all i will get data for single user before clicking submit button
+    fetch(`/Books/${id}`)
+    .then(res => res.json())
+    .then(datab => $$("form").setValues(datab));
+    },
+  },
+
+  autoheight:true,
+  autowidth:true,
+  data:data
+};
+
+webix.ready(function(){
+  webix.ui(grida);
+
+ var postData={
+    view: 'form',id:"formm",
+    elements: [
+    {
+        view:"text", name:"bookName",
+        label:"Book Name",
+        placeholder:"Book name",
+        invalidMessage:"A book name is required",
+        tooltip:"Book name is #value#"
+      },
+      {
+        view:"text", name:"bookCover",
+        label:"Book Cover",
+        invalidMessage:"A book cover is required",
+        placeholder:"Book Cover",
+        tooltip:"Book Cover is #value#"
+      },
+      { view:"text", name:"price", 
+      label:"Price",placeholder:"Price",
+      validate:function(val){
+        return !isNaN(val*1);
+      }, attributes:{ type:"number" }},
+      { view:"text", name:"author",attributes:{ type:"hidden" }},
+      { view:"datepicker", timepicker:true,
+      label:"Published Date", name:"publishedDate", stringResult:true,
+      placeholder:"Published Date",
+     format:"%Y-%m-%d  %H:%i:%s"},
+      { view: 'button', value: 'Submit',type:'form',
+        click:function(){
+          const form = this.getFormView();
+         
+          //console.log(form.validate());
+          console.log(form.getValues());
+          if (form.validate()){
+
+            //posting data to the server after completing 
+            //sucessful validation
+
+            fetch('/Books', {
+              method: 'POST',
+              body: JSON.stringify(form.getValues()),
+           headers: {
+            "Content-type": "application/json; charset=UTF-8"
+          }
+        })
+        .then(response => response.json())
+        .then(json => console.log(json));
+         
+         form.hide();
+
+
+          }
+        }
+      }
+    ],
+    rules:{
+      "bookName":webix.rules.isNotEmpty,
+      "bookCover":webix.rules.isNotEmpty
+    }
+  }
+  webix.ui({ view:"button", align:"left",
+    label:'<span class="webix_icon wxi-plus"></span>'+
+    '<span class="text">Add Record</span>',
+    inputWidth:130,
+    click:function(){
+      webix.ui(postData);
+      this.hide();
+    }
+});
+});
+    });
+
+
+</script>
+    </body>
+</html>
