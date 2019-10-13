@@ -8,7 +8,7 @@ CRUD Operations with Strapi and WEBix Framework. I have created four end for our
 
 3.) /Books/:id  ---for updating record
 
-4) /Books/:id ---for deleting record
+4.) /Books/:id ---for deleting record
 
 In Frontend, most of the time i have used JavaScript fetch API to make the request and reponse on my created endpoint.  
 
